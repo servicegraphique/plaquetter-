@@ -1,4 +1,4 @@
-"""Adapt only pages 3, 4, 5 and 7 of the supplied HelloLead PDF.
+"""Adapt only pages 3, 4, 5, 6 and 7 of the supplied HelloLead PDF.
 Run with PyMuPDF installed: python scripts/create_touchscreen_brochure.py
 All example companies and contact details below are fictional.
 """
@@ -42,31 +42,24 @@ def field(p, x, y, w, label, value='Sélectionner', size=12):
     rect(p, (x, y+27, x+w, y+60), WHITE, (.80,.84,.89), .1)
     text(p, x+10, y+33, w-20, value, size-1, color=MUTED)
 
-def pos(p, x, y, w, h):
-    """Original vector illustration of a touchscreen POS and receipt printer."""
-    rect(p, (x, y, x+w, y+h), (.87,.92,.98))
-    # counter and monitor stand
-    rect(p, (x, y+h*.82, x+w, y+h), (.74,.80,.86))
-    rect(p, (x+w*.40, y+h*.52, x+w*.49, y+h*.83), (.18,.23,.29))
-    rect(p, (x+w*.27, y+h*.80, x+w*.62, y+h*.85), (.12,.17,.23), radius=.2)
-    rect(p, (x+w*.08, y+h*.09, x+w*.77, y+h*.65), (.10,.15,.21), radius=.08)
-    rect(p, (x+w*.11, y+h*.13, x+w*.74, y+h*.60), WHITE)
-    rect(p, (x+w*.11, y+h*.13, x+w*.74, y+h*.20), BLUE)
-    for r in range(3):
-        for c in range(3):
-            xx=x+w*(.14+c*.12); yy=y+h*(.25+r*.105)
-            rect(p, (xx, yy, xx+w*.10, yy+h*.08), [(.72,.84,1),(.87,.92,.98),(.68,.86,.82)][c], radius=.1)
-    for r in range(4):
-        yy=y+h*(.26+r*.075)
-        rect(p, (x+w*.54, yy, x+w*.70, yy+h*.018), (.75,.80,.86))
-    rect(p, (x+w*.54,y+h*.56,x+w*.71,y+h*.59),BLUE)
-    # printer, paper receipt and cash drawer
-    rect(p, (x+w*.76,y+h*.59,x+w*.95,y+h*.83),(.18,.23,.29),radius=.1)
-    rect(p, (x+w*.79,y+h*.43,x+w*.92,y+h*.65),WHITE)
-    for r in range(4):
-        yy=y+h*(.46+r*.035)
-        rect(p,(x+w*.81,yy,x+w*.90,yy+h*.009),(.58,.64,.70))
-    rect(p, (x+w*.17,y+h*.86,x+w*.75,y+h*.94),(.14,.19,.25),radius=.1)
+def pos(p, x, y, w, h, scene='commerce'):
+    """Place a generated photorealistic asset, center-cropped without distortion."""
+    image = ROOT / 'assets' / f'caisse-tactile-{scene}.jpg'
+    pix = pdf.Pixmap(str(image))
+    source_ratio = pix.width / pix.height
+    target_ratio = w / h
+    # Fill the frame while preserving the photograph's proportions.
+    if source_ratio > target_ratio:
+        crop_width = pix.height * target_ratio
+        crop = pdf.IRect((pix.width-crop_width)/2, 0,
+                         (pix.width+crop_width)/2, pix.height)
+    else:
+        crop_height = pix.width / target_ratio
+        crop = pdf.IRect(0, (pix.height-crop_height)/2,
+                         pix.width, (pix.height+crop_height)/2)
+    cropped = pdf.Pixmap(pix.colorspace, crop, pix.alpha)
+    cropped.copy(pix, crop)
+    p.insert_image(pdf.Rect(x,y,x+w,y+h), pixmap=cropped)
 
 def clear(p, boxes):
     for box, color in boxes:
@@ -138,7 +131,7 @@ rect(p,(416,210,719,637),WHITE)
 text(p,430,222,275,'Solutions Caisses Pro',16,True,BLUE)
 text(p,430,250,275,'Sponsorisé · Exemple de création',10,color=MUTED)
 text(p,430,281,275,'Une caisse tactile adaptée\nà votre activité.',18,True)
-pos(p,430,348,275,190)
+pos(p,430,348,275,190,scene='restaurant')
 text(p,430,550,275,'Encaissement • Stocks • Fidélité',12,True)
 button(p,430,588,275,'Demander mes devis',13)
 rect(p,(736,210,1047,637),WHITE)
@@ -149,6 +142,24 @@ field(p,752,412,279,'Votre besoin ?','Ouverture d’un restaurant')
 field(p,752,495,279,'Votre échéance ?','Sous 3 mois')
 button(p,752,588,279,'Continuer',13)
 lead(p,1091,268,273,[('Type de projet :','Ouverture d’un restaurant'),('Secteur d’activité :','Restauration rapide (B2B)'),('Nombre de caisses :','1 poste tactile'),('Fonctions souhaitées :','Sur place, à emporter, stocks'),('Échéance du projet :','Sous 3 mois'),('Accessoires souhaités :','Imprimante tickets, tiroir-caisse')], 'LE COMPTOIR GOURMAND','Restauration rapide','La Roche-sur-Yon','85000',gap=4)
+
+# PAGE 6 — adapt call qualification; preserve the call-centre photograph.
+p=DOC[5]
+clear(p,[((410,163,1047,518),BG),((1079,333,1380,785),BG)])
+rect(p,(411,169,1039,512),WHITE)
+rect(p,(411,169,1039,209),INK)
+text(p,429,177,590,'HelloLead · Qualification téléphonique',17,True,WHITE)
+text(p,429,224,590,'DEMANDE DE DEVIS · CAISSES ENREGISTREUSES TACTILES',15,True,BLUE)
+text(p,429,261,590,'Quel est le besoin du professionnel ?',14,True)
+for yy,label in [(303,'Remplacer une caisse existante'),(339,'Équiper un nouveau point de vente'),(375,'Ajouter des postes d’encaissement')]:
+    rect(p,(431,yy,444,yy+13),WHITE,(.63,.71,.80))
+    if yy==303:
+        p.draw_polyline([(433,yy+7),(437,yy+10),(443,yy+2)],color=BLUE,width=1.5)
+    text(p,456,yy-3,550,label,13)
+text(p,429,419,572,'Secteur : restauration · 2 caisses · Décideur : gérant',12)
+button(p,429,463,273,'Projet qualifié · À transmettre',12)
+text(p,721,468,293,'Exemple de fiche de qualification',10,color=MUTED)
+lead(p,1082,336,280,[('Catégorie CRM du besoin :','Caisses enregistreuses tactiles'),('Type de projet et statut :','Remplacement, professionnel (B2B)'),('Nombre de caisses :','2 postes tactiles'),('Décideur identifié :','Gérant de l’établissement'),('Disponibilité pour un appel :','Demain à 11 h')], 'LA TABLE DES ALPES','Restauration traditionnelle','Annecy','74000',size=12.5,gap=6)
 
 # PAGE 7 — two example email campaigns.
 p=DOC[6]
@@ -167,7 +178,7 @@ text(p,456,754,252,'Exemple de campagne · Visuel indicatif',8,color=MUTED)
 rect(p,(743,105,1001,785),WHITE)
 rect(p,(743,105,1001,169),INK)
 text(p,758,121,228,'Votre commerce évolue.\nVotre caisse aussi.',16,True,WHITE)
-pos(p,743,169,258,168)
+pos(p,743,169,258,168,scene='restaurant')
 text(p,759,357,226,'Un projet d’équipement ?',16,True,BLUE)
 text(p,759,414,226,'Bonjour,\n\nVous ouvrez un commerce\nou souhaitez remplacer\nvotre caisse actuelle ?\n\nPrécisez votre activité,\nle nombre de postes et\nles fonctions recherchées.\n\nComparez des solutions\nadaptées à votre besoin.',12,h=265)
 button(p,758,678,228,'Étudier mon projet',12)
@@ -180,10 +191,10 @@ print(OUTPUT)
 # Pixel-by-pixel guarantee for pages explicitly excluded from the adaptation.
 result=pdf.open(OUTPUT)
 original=pdf.open(SOURCE)
-for i in [0,1,5,7,8]:
+for i in [0,1,7,8]:
     assert original[i].get_pixmap().samples == result[i].get_pixmap().samples, f'Page {i+1} changed'
-for i in [2,3,4,6]:
+for i in [2,3,4,5,6]:
     content=result[i].get_text().lower()
     assert not any(word in content for word in ['solaire','photovolta','toiture','kwh','kwc']), f'Solar reference on page {i+1}'
     result[i].get_pixmap(matrix=pdf.Matrix(.8,.8)).save(ROOT / '.cache' / f'adapted-{i+1}.png')
-print('Verified: 9 pages; pages 1, 2, 6, 8, 9 pixel-identical; adapted pages contain no solar text.')
+print('Verified: 9 pages; pages 1, 2, 8, 9 pixel-identical; adapted pages contain no solar text.')
