@@ -98,31 +98,42 @@ field(p,795,498,219,'Votre projet ?','Premier équipement')
 button(p,795,573,219,'Suivant',12)
 lead(p,1099,253,270,[('Type de projet :','Premier équipement'),('Secteur d’activité :','Commerce alimentaire'),('Nombre de caisses souhaité :','2 postes tactiles'),('Fonctionnalités recherchées :','Encaissement, stocks, fidélité'),('Budget envisagé :','2 000 € à 4 000 €'),('Échéance du projet :','Dans 1 à 3 mois')], 'LE COMPTOIR NANTAIS','Épicerie de proximité','Nantes','44000',gap=6)
 
-# PAGE 4 — landing page and qualification form.
+# PAGE 4 — restore the original SEA composition and compact form styling.
 p=DOC[3]
 clear(p,[((479,85,960,757),BG),((1008,451,1307,777),BG)])
+SEA_NAVY = (.08,.20,.32)
+SEA_CYAN = (.04,.62,.77)
 rect(p,(483,89,956,441),WHITE)
-pos(p,483,89,473,270)
-rect(p,(701,108,940,377),WHITE,radius=.03)
-text(p,716,123,209,'Comparez les offres de\ncaisses tactiles',16,True,BLUE)
-text(p,716,184,209,'Quel est votre projet ?',12,True)
-for yy,lab in [(219,'Premier équipement'),(255,'Remplacement de caisse'),(291,'Ouverture d’un point de vente')]:
-    rect(p,(717,yy,728,yy+11),WHITE,(.65,.72,.80))
-    text(p,735,yy-3,195,lab,10)
-button(p,716,331,209,'Suivant',12)
-text(p,498,370,430,'Caisses enregistreuses tactiles',19,True,BLUE)
-text(p,498,407,430,'Commerces · Restaurants · Boutiques',12,align=1)
+rect(p,(483,89,956,403),LIGHT)
+pos(p,483,89,228,314)
+# As in the original: image and white caption at left, compact form at right.
+rect(p,(483,270,711,403),SEA_NAVY)
+text(p,497,280,201,'Caisses\nenregistreuses tactiles',15,True,WHITE)
+text(p,497,352,201,'Des offres adaptées\nà votre activité professionnelle',9,color=WHITE)
+rect(p,(703,143,942,378),WHITE,radius=.03)
+text(p,717,153,211,'Comparez les offres\npour votre caisse tactile',12,True,BLUE)
+text(p,717,192,211,'Quel est votre projet d’équipement ?',9,color=MUTED)
+for yy,lab in [(236,'Premier équipement'),(271,'Remplacement de caisse'),(306,'Ouverture d’un point de vente')]:
+    rect(p,(717,yy,729,yy+12),WHITE,(.72,.79,.84))
+    text(p,737,yy-1,193,lab,8.5)
+rect(p,(851,346,928,369),SEA_CYAN,radius=.1)
+text(p,856,351,67,'Suivant',9,True,WHITE,align=1)
+text(p,493,421,453,'Commerces · Restaurants · Boutiques',9,True,align=1)
+# Retain the original navy step header, white inset and seven compact choices.
 rect(p,(483,452,956,745),LIGHT)
-rect(p,(498,465,941,515),INK,radius=.07)
-text(p,515,475,410,'Extrait du formulaire',18,True,WHITE)
-text(p,515,534,405,'Combien de caisses souhaitez-vous ?',14,True,BLUE)
-for yy,lab in [(581,'1 caisse'),(617,'2 à 3 caisses'),(653,'4 caisses et plus')]:
-    rect(p,(518,yy,532,yy+14),WHITE,(.63,.71,.80))
-    if yy==617:
-        p.draw_polyline([(520,yy+7),(524,yy+11),(531,yy+2)], color=BLUE, width=1.5)
-    text(p,545,yy-3,350,lab,13)
-button(p,805,697,118,'Suivant',12)
-lead(p,1012,453,295,[('Type de projet :','Remplacement de caisse'),('Nombre de caisses :','2 à 3 postes tactiles'),('Échéance du projet :','Dans 1 à 3 mois')], 'LE BISTROT DES EMBRUNS','Restauration traditionnelle','Saint-Malo','35400',size=11,gap=5)
+rect(p,(498,465,941,512),SEA_NAVY,radius=.07)
+text(p,515,472,410,'Extrait du formulaire',17,True,WHITE)
+text(p,515,496,410,'Étape 2 · Préciser le nombre de caisses',8,color=WHITE)
+rect(p,(505,525,934,728),WHITE,radius=.04)
+text(p,525,535,385,'Combien de caisses souhaitez-vous ?',12,True,BLUE)
+for yy,lab in zip(range(563,696,22), ['1 caisse','2 caisses','3 caisses','4 caisses','5 à 9 caisses','10 caisses et plus','À définir avec un conseiller']):
+    rect(p,(528,yy,540,yy+12),WHITE,(.72,.79,.84))
+    if lab=='2 caisses':
+        p.draw_polyline([(530,yy+6),(533,yy+9),(539,yy+2)],color=SEA_CYAN,width=1.3)
+    text(p,549,yy-1,358,lab,10)
+rect(p,(849,698,924,720),SEA_CYAN,radius=.1)
+text(p,854,702,65,'Suivant',9,True,WHITE,align=1)
+lead(p,1012,453,295,[('Type de projet :','Remplacement de caisse'),('Nombre de caisses :','2 postes tactiles'),('Échéance du projet :','Dans 1 à 3 mois')], 'LE BISTROT DES EMBRUNS','Restauration traditionnelle','Saint-Malo','35400',size=11,gap=5)
 
 # PAGE 5 — social creative and instant lead form.
 p=DOC[4]
